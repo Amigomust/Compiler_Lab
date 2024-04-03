@@ -24,15 +24,29 @@ function: 2
 int: 1
 special: 0
 */
+
+class ElementID {
+    private:
+        int id;
+        int type;
+        int validSpace;
+    public:
+        ElementID(int i = 0, int t = 0, int v = 0): id(i), type(t), validSpace(v) {}
+        int getId() { return id; }
+        int getType() { return type; }
+        int getValidSpace() { return validSpace; }
+        tuple<int, int, int> Get() { return make_tuple(id, type, validSpace); }
+};
+
 class Trie {
     private:
         struct Node {
             unordered_map<char, int> next;
-            stack<ui> val;
+            stack<ElementID> value;
         };
         vector<Node> nodes;
     public:
-        void Insert(string s, int v) {
+        void Insert(string s, ElementID v) {
             int beg = 0;
             for (int i = 0; i < s.size(); i ++) {
                 unordered_map<char, int>& next = nodes[beg].next;
@@ -44,12 +58,12 @@ class Trie {
                     beg = nodes.size();
                 }
             }
-            nodes[beg].val.push(v);
+            nodes[beg].value.push(v);
         }
         Trie() {
             nodes.push_back(Node());
         }
-        int Find(string& s, int valid) {
+        ElementID Find(string& s, int valid) {
             int beg = 0;
             for (int i = 0; i < s.size(); i ++) {
                 unordered_map<char, int>& next = nodes[beg].next;
@@ -57,18 +71,10 @@ class Trie {
                 if (it == next.end()) return -1;
                 beg = it->second;
             }
-            if (nodes[beg].val.empty() || (nodes[beg].val.top() & VALMASK) != valid) return -1;
-            return nodes[beg].val.top() & (IDMASK | TYPEMASK);
+            if (nodes[beg].value.empty() || (nodes[beg].value.top().getValidSpace()) != valid) return -1;
+            return nodes[beg].value.top();
         }
 } GlobalTrie, SpecialTrie, CommonTrie;
-
-class SpecialName {
-    private:
-        string name;
-        SpecialName(string n) {
-            name = n;
-        }
-};
 
 class Element {
     protected:
@@ -81,6 +87,7 @@ class Element {
         }
 };
 
+// flag = 1: immediate value, flag = 0: stack value
 class IntElement: Element{
     private:
         int value;
@@ -103,9 +110,16 @@ class IntElement: Element{
         ~IntElement() {
             // TODO: complete the mips code
         }
-        IntElement operator+(const IntElement& a) const {
+        friend void Add(const IntElement& a, const IntElement& b, IntElement& c) {
             // TODO: complete the mips code
-            return IntElement(value + a.value, stackPos);
+            if (a.flag && b.flag) c = IntElement(a.value + b.value, 0, 1);
+            else if (a.flag) {
+                // c = b + immediate value
+            } else if (b.flag) {
+                // c = a + immediate value
+            } else {
+                // c = a + b
+            }
         }
         IntElement operator-(const IntElement& a) const {
             // TODO: complete the mips code
@@ -210,7 +224,6 @@ T calExpre(string& s) {
          {"=", 2}};
     
     stack<T> num; stack<string> op;
-    int tempValNum = 0;
     int n = s.size();
 
     auto cal = [&num, &op, &tempValNum]() {
@@ -233,6 +246,7 @@ T calExpre(string& s) {
         else if (c == "<=") temp = a <= b;
         else if (c == ">=") temp = a >= b;
         else if (c == "==") temp = a == b;
+        else if (c == "=") temp = a = b;
         else assert(0);
         
         num.push(temp);
@@ -283,36 +297,18 @@ FunctionElement createFunctionElement(string name, vector<string>& arglist, stri
         int pos = arg.find(' ');
         string type = rmBegSpaceAndEndSpace(arg.substr(0, pos));
         string temp = rmBegSpaceAndEndSpace(arg.substr(pos + 1));
-        
+
         args.push_back(name);
         types.push_back(type);
     }
     return FunctionElement(name, args, types, codes, rt);
 }
 
-void Expre(string s = "int main(int a, int b, int c) {};") {
-    regex functionReg("(int|void)\\s\\s*([a-z_A-Z][a-zA-Z0-9_]*)\\s*\\((.*)\\)\\s*(\\{(.*)\\};)");
-    regex varReg("(int)\\s\\s*([a-zA-Z_][a-z_A-Z0-9]*)\\s*;");
-    regex assignReg("([a-zA-Z_][a-z_A-Z0-9]*)\\s*(=)\\s*(.*);");
-    if (regex_match(s, functionReg)) {
-        smatch sm;
-        regex_match(s, sm, functionReg);
-        string type = rmBegSpaceAndEndSpace(sm[1]);
-        string name = rmBegSpaceAndEndSpace(sm[2]);
-        string args = sm[3];
-        string codes = sm[4];
-        regex commaReg(",");
-        sregex_token_iterator iter(args.begin(), args.end(), commaReg, -1);
-        sregex_token_iterator end;
-        vector<string> argList(iter, end);
-        FunctionElement func = createFunctionElement(name, argList, codes, type);
-    } else if (regex_match(s, varReg)) {
+void CompileTheCode(string s = "int main(int a, int b, int c) {};") {
+    // TODO: Compile the code
+    beg();
 
-    } else if (regex_match(s, assignReg)) {
-
-    } else {
-        assert(0);
-    }
+    end();
 }
 
 void end() {
@@ -321,6 +317,14 @@ void end() {
     printf("syscall\n");
     printf("li $v0, 10\n");
     printf("syscall");
+}
+
+void beg() {
+    printf(".text\n");
+    printf(".globl main\n");
+    printf("main:\n");
+    printf("move $fp, $sp\n");
+    printf("addiu $sp, $sp, -0x100\n");
 }
 
 string Regular(string& s) {
@@ -343,23 +347,16 @@ string Regular(string& s) {
 
 
 int main(int argc, char* argv[]) {
-    // assert(argc > 1);
-    // fstream fs;
-    // fs.open(argv[1], ios::in);
-    // assert(fs.is_open());
-    // printf(".text\n");
-    // printf(".globl main\n");
-    // printf("main:\n");
-    // printf("move $fp, $sp\n");
-    // printf("addiu $sp, $sp, -0x100\n");
-    // string code;
-    // string temp;
-    // while (getline(fs, temp)) {
-    //     code += temp;
-    // }
-    // fs.close();
-    // end();
-    // string new_code = Regular(code);
-    // return 0;
-    Expre();
+    assert(argc > 1);
+    fstream fs;
+    fs.open(argv[1], ios::in);
+    assert(fs.is_open());
+    string code;
+    string temp;
+    while (getline(fs, temp)) {
+        code += temp;
+    }
+    fs.close();
+    CompileTheCode(Regular(code));
+    return 0;
 }
