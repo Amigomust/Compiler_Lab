@@ -146,100 +146,224 @@ class IntElement: Element{
         static size_t getNeedMemory() { return 4; }
         IntElement operator+(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value + a.value, 0, 1, -1);
-            if (a.flag) printf("%s + %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d + %s\n", value, a.name.c_str());
-            else printf("%s + %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) printf("addi $t0, $t0, %d\n", a.value);
+            else if (flag) printf("addi $t0, $t0, %d\n", value);
+            else printf("add $t0, $t0, $t1\n");
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator-(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value - a.value, 0, 1, -1);
-            if (a.flag) printf("%s - %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d - %s\n", value, a.name.c_str());
-            else printf("%s - %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("sub $t0, $t1, $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("sub $t0, $t0, $t1\n");
+            }
+            else printf("sub $t0, $t0, $t1\n");
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator*(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value * a.value, 0, 1, -1);
-            if (a.flag) printf("%s * %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d * %s\n", value, a.name.c_str());
-            else printf("%s * %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("mul $t0, $t1, $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("mul $t0, $t0, $t1\n");
+            }
+            else printf("mul $t0, $t0, $t1\n");
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator/(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value / a.value, 0, 1, -1);
-            if (a.flag) printf("%s / %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d / %s\n", value, a.name.c_str());
-            else printf("%s / %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("div $t1, $t0\n");
+                printf("mflo $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("div $t0, $t1\n");
+                printf("mflo $t0\n");
+            }
+            else {
+                printf("div $t0, $t1\n");
+                printf("mflo $t0\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator%(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value % a.value, 0, 1, -1);
-            if (a.flag) printf("%s %% %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d %% %s\n", value, a.name.c_str());
-            else printf("%s %% %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("div $t1, $t0\n");
+                printf("mfhi $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("div $t0, $t1\n");
+                printf("mfhi $t0\n");
+            }
+            else {
+                printf("div $t0, $t1\n");
+                printf("mfhi $t0\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator<(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value < a.value, 0, 1, -1);
-            if (a.flag) printf("%s < %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d < %s\n", value, a.name.c_str());
-            else printf("%s < %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("slt $t0, $t1, $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("slt $t0, $t0, $t1\n");
+            }
+            else {
+                printf("slt $t0, $t0, $t1\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator<=(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value <= a.value, 0, 1, -1);
-            if (a.flag) printf("%s <= %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d <= %s\n", value, a.name.c_str());
-            else printf("%s <= %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("slt $t0, $t0, $t1\n");
+                printf("xori $t0, $t0, 1\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("slt $t0, $t1, $t0\n");
+                printf("xori $t0, $t0, 1\n");
+            }
+            else {
+                printf("slt $t0, $t1, $t0\n");
+                printf("xori $t0, $t0, 1\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator>(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value > a.value, 0, 1, -1);
-            if (a.flag) printf("%s > %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d > %s\n", value, a.name.c_str());
-            else printf("%s > %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("slt $t0, $t0, $t1\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("slt $t0, $t1, $t0\n");
+            }
+            else {
+                printf("slt $t0, $t1, $t0\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator>=(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value >= a.value, 0, 1, -1);
-            if (a.flag) printf("%s >= %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d >= %s\n", value, a.name.c_str());
-            else printf("%s >= %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("slt $t0, $t1, $t0\n");
+                printf("xori $t0, $t0, 1\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("slt $t0, $t0, $t1\n");
+                printf("xori $t0, $t0, 1\n");
+            }
+            else {
+                printf("slt $t0, $t0, $t1\n");
+                printf("xori $t0, $t0, 1\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator==(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value == a.value, 0, 1, -1);
-            if (a.flag) printf("%s == %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d == %s\n", value, a.name.c_str());
-            else printf("%s == %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("bne $t1, $t0, 2\n");
+                printf("li $t0, 0\n");
+                printf("addi $t0, 1\n");
+                printf("li $t0, 0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("bne $t0, $t1, 2\n");
+                printf("li $t0, 0\n");
+                printf("addi $t0, 1\n");
+                printf("li $t0, 0\n");
+            }
+            else {
+                printf("bne $t0, $t1, 2\n");
+                printf("li $t0, 0\n");
+                printf("addi $t0, 1\n");
+                printf("li $t0, 0\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator!=(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value != a.value, 0, 1, -1);
-            if (a.flag) printf("%s != %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d != %s\n", value, a.name.c_str());
-            else printf("%s != %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("beq $t1, $t0, 2\n");
+                printf("li $t0, 0\n");
+                printf("addi $t0, 1\n");
+                printf("li $t0, 0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("beq $t0, $t1, 2\n");
+                printf("li $t0, 0\n");
+                printf("addi $t0, 1\n");
+                printf("li $t0, 0\n");
+            }
+            else {
+                printf("beq $t0, $t1, 2\n");
+                printf("li $t0, 0\n");
+                printf("addi $t0, 1\n");
+                printf("li $t0, 0\n");
+            }
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator&(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value & a.value, 0, 1, -1);
-            if (a.flag) printf("%s & %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d & %s\n", value, a.name.c_str());
-            else printf("%s & %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("and $t0, $t1, $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("and $t0, $t0, $t1\n");
+            }
+            else printf("and $t0, $t0, $t1\n");
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator|(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value | a.value, 0, 1, -1);
-            if (a.flag) printf("%s | %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d | %s\n", value, a.name.c_str());
-            else printf("%s | %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("or $t0, $t1, $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("or $t0, $t0, $t1\n");
+            }
+            else printf("or $t0, $t0, $t1\n");
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
         IntElement operator^(const IntElement& a) {
             if (a.flag && flag) return IntElement(name, value ^ a.value, 0, 1, -1);
-            if (a.flag) printf("%s ^ %d\n", name.c_str(), a.value);
-            else if (flag) printf("%d ^ %s\n", value, a.name.c_str());
-            else printf("%s ^ %s\n", name.c_str(), a.name.c_str());
+            if (a.flag) {
+                printf("li $t1, %d\n", a.value);
+                printf("xor $t0, $t1, $t0\n");
+            }
+            else if (flag) {
+                printf("li $t1, %d\n", value);
+                printf("xor $t0, $t0, $t1\n");
+            }
+            else printf("xor $t0, $t0, $t1\n");
             return IntElement(a.regPos == 0 ? a.name : name, value, 0, 0, 0);
         }
 
