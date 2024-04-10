@@ -4,7 +4,7 @@ int StackPos::GlobalStackPos = 0;
 int RegPos::RegNum = 0;
 RegPos* RegPos::regs = new RegPos[32];
 
-StackPos::StackPos(size_t size) {
+StackPos::StackPos(size_t size) {  
     sPos = GlobalStackPos;
     GlobalStackPos += size;
     // TODO: mips

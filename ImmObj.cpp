@@ -7,7 +7,7 @@ std::string ImmObject::toReg() {
     if (rPos == nullptr) rPos = RegPos::allocReg(this);
     std::string regPos = rPos->getRegPos();
     // TODO: 立即数存入Reg
-    
+    printf("li %s, %d\n", regPos, this->getvalue()); // xzq
     return regPos;
 }
 

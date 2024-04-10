@@ -9,6 +9,8 @@ std::string IntObject::toReg() {
     if (rPos == nullptr) rPos = RegPos::allocReg(this);
     std::string regPos = rPos->getRegPos();
     // TODO: 栈 -> 寄存器
+    printf("lw %s, 4(%s)\n", regPos, stkPos); // xzq
+    /*lw rt, offset(base)*/
 
     return regPos;
 }
