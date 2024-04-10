@@ -28,12 +28,22 @@ void RegPos::checkTheRegs() {
     std::cout << std::endl;
 }
 
-
 RegPos* RegPos::allocReg(Object* yue) {
     for (int i = 8; i < 15; i ++) {
         if (regs[i].nowUsing == nullptr) {
             regs[i].nowUsing = yue;
-            yue->rPos = regs + i;
+            return regs + i;
         }
     }
+    assert(false); // no more reg
+}
+
+void RegPos::freeReg(RegPos* reg) {
+    if (reg->nowUsing) {
+        reg->nowUsing = nullptr;
+    }
+}
+
+std::string RegPos::getRegPos() {
+    return "$" + std::to_string(rPos);
 }

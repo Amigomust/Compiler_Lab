@@ -11,32 +11,18 @@ Object::Object(size_t size, std::string name, size_t valid) {
     validSpace = valid;
 }
 
-IntObject::IntObject(std::string name, size_t valid) : Object(4, name, valid) {
-    type = DataType("int");
+void Object::freeReg(int save) {
+    if (rPos) {
+        std::string stkPos = sPos.getStackPos();
+        std::string regpos = rPos->getRegPos();
+        if (save) {}// TODO:
+        else {
+            RegPos::freeReg(rPos);
+            rPos = nullptr;
+        }
+    }
 }
+std::string Object::toReg() {}
 
-void IntObject::regSaveToStack() {
-    std::string regPos = rPos -> getRegPos();
-    std::string stkPos = sPos.getStackPos();
-    // TODO: Complete it
-}
 
-void IntObject::freeRegNoSave() {
-    // TODO: Complete it
-}
 
-void IntObject::stackToReg() {
-    std::string stkPos = sPos.getStackPos();
-    if (rPos == nullptr) rPos = RegPos::allocReg(Regs)
-}
-
-ImmObject::ImmObject(int val): value(val) {}
-
-FunctionObject::FunctionObject(std::string name, size_t valid, std::vector<Object*> args) : Object(0, name, valid) {
-    type = DataType("function");
-    this->args = args;
-}
-
-void FunctionObject::work() {
-    // TODO: jump指令
-}
