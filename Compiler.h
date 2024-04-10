@@ -137,6 +137,7 @@ class Trie {
 
 void compileTheExpression(std::string s, int valid);
 void compileTheCode(std::string s, int valid);
+std::string rmBegEndSpace(std::string s);
 std::string regular(std::string code);
 
 #endif
