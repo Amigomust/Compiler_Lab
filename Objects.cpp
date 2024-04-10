@@ -21,6 +21,15 @@ void IntObject::regSaveToStack() {
     // TODO: Complete it
 }
 
+void IntObject::freeRegNoSave() {
+    // TODO: Complete it
+}
+
+void IntObject::stackToReg() {
+    std::string stkPos = sPos.getStackPos();
+    if (rPos == nullptr) rPos = RegPos::allocReg(Regs)
+}
+
 ImmObject::ImmObject(int val): value(val) {}
 
 FunctionObject::FunctionObject(std::string name, size_t valid, std::vector<Object*> args) : Object(0, name, valid) {

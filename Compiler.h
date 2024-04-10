@@ -24,14 +24,19 @@ class StackPos {
     std::string getStackPos();
 };
 
+class Object;
+
 class RegPos {
     private:
     static int RegNum;
+    static RegPos* regs;
     int rPos;
     Object* nowUsing;
     public:
-    RegPos(Object* nowUsing);
+    RegPos(Object* nowUsing = nullptr);
     std::string getRegPos();
+    static RegPos* allocReg(Object* yue);
+    static void checkTheRegs();
 };
 
 class Object {
@@ -49,6 +54,7 @@ public:
     virtual void work();
     virtual void stackToReg();
     virtual void freeRegNoSave();
+    friend class RegPos;
 };
 
 class IntObject:public Object {
