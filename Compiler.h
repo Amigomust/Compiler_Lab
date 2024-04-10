@@ -112,6 +112,7 @@ class ImmObject:public Object {
     Object* greaterThan(Object* obj);
     Object* notEqual(Object* obj);
     Object* equal(Object* obj);
+    int getvalue();
 };
 class FunctionObject:public Object {
     protected:
