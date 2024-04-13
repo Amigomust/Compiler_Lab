@@ -6,12 +6,12 @@
 #include <vector>
 #include <regex>
 #include <assert.h>
-#include "native/trie.h"
-#include "native/short_str.h"
-#include "obj/object.h"
-#include "obj/fun_obj.h"
-#include "obj/int_obj.h"
-#include "mips/utils.h"
+#include "trie.h"
+#include "short_str.h"
+#include "object.h"
+#include "fun_obj.h"
+#include "int_obj.h"
+#include "utils.h"
 
 namespace css {
 

@@ -2,6 +2,5 @@
 .vscode/
 shit/
 *.out
-*.txt
 csubsub
 *.o

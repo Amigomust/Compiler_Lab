@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-#include "../native/short_str.h"
+#include "short_str.h"
 
 
 namespace mips {

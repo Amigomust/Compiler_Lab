@@ -8,18 +8,18 @@ SRCS_OBJ_FILES = $(wildcard obj/*)
 SRCS_NATIVE_FILES = $(wildcard native/*)
 SRCS_MIPS_FILES = $(wildcard mips/*)
 
-all: obj compiler csubsub
+all: csubsub
 
 # echo:
 # 	@echo $(wildcard obj/*)
 # 	@echo $(wildcard native/*)
 # 	@echo $(wildcard mips/*)
 
-obj: $(SRCS_OBJ_FILES) $(SRCS_NATIVE_FILES) $(SRCS_MIPS_FILES)
-	$(CXX) $(CXXFLAGS) -c obj/*.cpp 
+# obj: $(SRCS_OBJ_FILES) $(SRCS_NATIVE_FILES) $(SRCS_MIPS_FILES)
+# 	$(CXX) $(CXXFLAGS) -c obj/*.cpp 
 
-compiler: compiler.h compiler.cpp
-	$(CXX) $(CXXFLAGS) -c compiler.cpp
+# compiler: compiler.h compiler.cpp
+# 	$(CXX) $(CXXFLAGS) -c compiler.cpp
 
-csubsub: compiler.o csubsub.cpp fun_obj.o int_obj.o memory.o object.o
-	$(CXX) $(CXXFLAGS) -o csubsub compiler.o csubsub.cpp fun_obj.o int_obj.o memory.o object.o
+csubsub: compiler.cpp csubsub.cpp fun_obj.cpp int_obj.cpp memory.cpp object.cpp
+	$(CXX) $(CXXFLAGS) -o cminusminus compiler.cpp csubsub.cpp fun_obj.cpp int_obj.cpp memory.cpp object.cpp

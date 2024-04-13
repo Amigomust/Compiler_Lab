@@ -1,5 +1,5 @@
 #include "object.h"
-#include "../mips/utils.h"
+#include "utils.h"
 
 namespace memory {
 std::vector<size_t> stk_size(1,128);

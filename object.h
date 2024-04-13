@@ -2,8 +2,8 @@
 #define OBJECT
 
 #include <string>
-#include "../mips/utils.h"
-#include "../native/short_str.h"
+#include "utils.h"
+#include "short_str.h"
 #include <vector>
 #include <iostream>
 #include <assert.h>

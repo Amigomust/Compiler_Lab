@@ -1,6 +1,6 @@
 #include "fun_obj.h"
 #include "int_obj.h"
-#include "../mips/utils.h"
+#include "utils.h"
 
 namespace obj {
     function_object::function_object(std::string name, int valid, std::vector<int_object*> args): object(name, "function", valid){
