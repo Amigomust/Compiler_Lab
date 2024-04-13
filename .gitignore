@@ -1,2 +1,6 @@
 *.exe
 .vscode/
+shit/
+*.out
+*.txt
+csubsub
