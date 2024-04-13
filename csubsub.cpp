@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
     code.erase(std::remove_if(code.begin(), code.end(), [](char c) {
         return c == '\t' || c == '\n' || c == '\r';
     }), code.end());
+    printf(".data\nnewline: .asciiz \"\\n\"\n");
     printf(".text\n.globl main\n");
     css::define_function("int println_int(int x){}", -1);
     css::compile_code(css::regular(code), 0);

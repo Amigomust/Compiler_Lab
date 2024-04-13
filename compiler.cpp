@@ -61,7 +61,7 @@ void define_function(std::string s, int valid) {
     std::string name = fun[1];
     if (valid != -1) {
         printf("%s:\n", name.c_str());
-        memory::alloc_stack(128, true);
+        memory::alloc_stack(2048, true);
     }
     std::vector<obj::int_object*> args;
     if (true) args = define_arg(fun[2], valid + 1);
@@ -70,8 +70,6 @@ void define_function(std::string s, int valid) {
     obj::function_object* obj = new obj::function_object(name, valid, args);
     global_trie.insert(obj);
     compile_code(code, valid + 2);
-    
-    
 }
 
 void define_int(std::string s, int valid) {
@@ -105,30 +103,41 @@ void compile_expression(std::string s, int valid) {
          {"&", 4}, {"^", 4}, {"|", 4},
          {"=", 2}};
     
-    std::stack<obj::int_object*> num; std::stack<std::string> op;
+    std::stack<obj::int_object> num; std::stack<std::string> op;
     int n = s.size();
-    auto cal = [&]() {
+    auto cal = [&]() -> void {
         std::string c = op.top(); op.pop();
-        if (c == "(") return;
-        obj::int_object* b = num.top(); num.pop();
-        obj::int_object* a = num.top(); num.pop();
-        debug((a -> proper ? a -> name : a -> cal), c, (b -> proper ? b -> name : b -> cal));
-        if (c == "+") obj::cmd_add(*a, *b);
-        else if (c == "-") obj::cmd_sub(*a, *b);
-        else if (c == "*") obj::cmd_mul(*a, *b);
-        else if (c == "/") obj::cmd_div(*a, *b);
-        else if (c == "%") obj::cmd_mod(*a, *b);
-        else if (c == "&") obj::cmd_and(*a, *b);
-        else if (c == "|") obj::cmd_or(*a, *b);
-        else if (c == "^") obj::cmd_xor(*a, *b);
-        else if (c == "<") obj::cmd_slt(*a, *b);
-        else if (c == ">") obj::cmd_sgt(*a, *b);
-        else if (c == "<=") obj::cmd_le(*a, *b);
-        else if (c == ">=") obj::cmd_ge(*a, *b);
-        else if (c == "==") obj::cmd_eq(*a, *b);
-        else if (c == "=") obj::cmd_assign(*a, *b);
+        if (c == "(") return;   
+        obj::int_object b = num.top(); num.pop();
+        obj::int_object a = num.top(); num.pop();
+        debug(((a -> proper) ? (a -> name) : std::to_string(a -> cval)), c, ((b -> proper) ? (b -> name) : std::to_string(b -> cval)));
+        if (c == "+") obj::cmd_add(a, b);
+        else if (c == "-") obj::cmd_sub(a, b);
+        else if (c == "*") obj::cmd_mul(a, b);
+        else if (c == "/") obj::cmd_div(a, b);
+        else if (c == "%") obj::cmd_mod(a, b);
+        else if (c == "&") obj::cmd_and(a, b);
+        else if (c == "|") obj::cmd_or(a, b);
+        else if (c == "^") obj::cmd_xor(a, b);
+        else if (c == "<") obj::cmd_slt(a, b);
+        else if (c == ">") obj::cmd_sgt(a, b);
+        else if (c == "<=") obj::cmd_le(a, b);
+        else if (c == ">=") obj::cmd_ge(a, b);
+        else if (c == "==") obj::cmd_eq(a, b);
+        else if (c == "=") obj::cmd_assign(a, b);
         else assert(0);
-        num.push(a);
+
+        if (c == "=") {
+            num.push(a);
+        } else {
+            if (a.proper) {
+                obj::int_object temp("res", 1, 0, -1);
+                a.save_reg(temp.load_stk());
+                num.push(temp);
+            } else {
+                num.push(a);
+            }
+        }
     };
     // vector<string> opName = {"+", "-", "*", "/", "%", 
     // "<", ">", "<=", ">=", "==", 
@@ -142,7 +151,7 @@ void compile_expression(std::string s, int valid) {
             while (j < n && isdigit(s[j])) {
                 res = res * 10 + s[j ++] - '0';
             }
-            num.push(new obj::int_object(std::to_string(res), 0, res, valid + 1));
+            num.push(obj::int_object(std::to_string(res), 0, res, valid + 1));
             i = j - 1;
         } else if (isalpha(s[i]) || s[i] == '_') {
             int j = i + 1;
@@ -152,11 +161,10 @@ void compile_expression(std::string s, int valid) {
 
             obj::object* who = global_trie.find(temp);
             if (who->type == "value") {
-                obj::int_object* val = (obj::int_object*)who;
-                num.push(val);
+                num.push(*((obj::int_object*)who));
             } else if (who->type == "function") {
                 obj::function_object* fun = (obj::function_object*)who;
-                num.push(work(fun, s, j));
+                num.push(*work(fun, s, j));
                 assert(s[j] == ')');
                 j ++;
             } else assert(0); // Compile Error if the variable is not exist

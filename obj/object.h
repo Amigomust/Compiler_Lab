@@ -85,6 +85,7 @@ class value_object: public object {
     native::Str16 load_reg(int x);
     virtual void store2reg();
     void free_reg();
+    void save_reg(native::Str16 stk);
     native::Str16 load_stk();
     friend class memory::register_pos;
     friend class memory::stack_pos;

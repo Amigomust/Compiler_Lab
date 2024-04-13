@@ -40,7 +40,10 @@ class trie {
         int beg = 0;
         for (int i = 0; i < len; i ++) {
             std::unordered_map<char, int>::iterator it = nodes[beg].next.find(name[i]);
-            if (it == nodes[beg].next.end()) assert(false);
+            if (it == nodes[beg].next.end()) {
+                debug(name);
+                assert(false);
+            }
             beg = (*it).second;
         }   
         assert(!nodes[beg].objects.empty());

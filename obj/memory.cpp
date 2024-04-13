@@ -63,7 +63,7 @@ void free_reg(register_pos* reg) {
 }
 
 void alloc_stack(size_t size, bool is_define) {
-    mips::binary_manage("addiu", "$sp", -int(size));
+    mips::binary_manage("addiu", "$sp", -int(size), __PRETTY_FUNCTION__);
     if (is_define) {
         stk_size.push_back(size);
         global_tp_pos.push_back(0);
@@ -76,7 +76,7 @@ void alloc_stack(size_t size, bool is_define) {
 
 void free_stack() {
     load_fp();
-    mips::binary_manage("addiu", "$sp", stk_size.back());
+    mips::binary_manage("addiu", "$sp", stk_size.back(), __PRETTY_FUNCTION__);
     stk_size.pop_back();
     global_tp_pos.pop_back();
 }
@@ -92,16 +92,16 @@ void check_regs() {
 void save_fp() {
     int save_pos = stk_size.back() - 4;
     global_tp_pos.back() += 4;
-    mips::binary_access("sw", "$fp", std::to_string(save_pos) + "($sp)");
+    mips::binary_access("sw", "$fp", std::to_string(save_pos) + "($sp)", __PRETTY_FUNCTION__);
 }
 
 void move_fp() {
-    mips::binary_access("move", "$fp", "$sp");
+    mips::binary_access("move", "$fp", "$sp", __PRETTY_FUNCTION__);
 }
 
 void load_fp() {
     int save_pos = stk_size.back() - 4;
-    mips::binary_access("lw", "$fp", std::to_string(save_pos) + "($sp)");
+    mips::binary_access("lw", "$fp", std::to_string(save_pos) + "($sp)", __PRETTY_FUNCTION__);
 }
 
 } // namespace memory

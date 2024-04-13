@@ -71,11 +71,19 @@ void value_object::free_reg() {
     }
 }
 
+void value_object::save_reg(native::Str16 stk) {
+    assert(reg_pos);
+    mips::binary_access("sw", reg_pos -> get_pos(), stk, __PRETTY_FUNCTION__);
+    free_reg();
+}
+
 native::Str16 value_object::load_stk() {
     debug("fuck111");
     auto temp = stk_pos.get_pos(4);
     debug(temp);
     return temp;
 }
+
+
 
 }
