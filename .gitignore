@@ -4,3 +4,7 @@ shit/
 *.out
 csubsub
 *.o
+CmakeFiles
+bin
+*.cmake
+CMakeCache.txt

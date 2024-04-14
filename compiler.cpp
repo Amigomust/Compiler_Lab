@@ -15,14 +15,12 @@ native::trie global_trie;
 
 void define_return(std::string s, int valid) {
     std::vector<std::string> fun = split(s);
-    if (valid != -1) {
-        memory::free_stack();
-    }
     assert(fun.size() == 2);
     std::string type = fun[0];
     std::string name = fun[1];
     assert(type == "return");
     int n = name.size();
+    native::Str16 ans;
     for (int i = 0; i < n; i ++) {
         if (std::isalpha(name[i]) || name[i] == '_') {
             int l = i;
@@ -31,13 +29,13 @@ void define_return(std::string s, int valid) {
             obj::object* who = global_trie.find(temp);
             if (who->type == "value") {
                 obj::int_object* res = (obj::int_object*)who;
-                mips::return_value(res->load_reg(2));
+                ans = res->load_reg(2);
                 res->free_reg();
             } else if (who->type == "function") {
                 obj::function_object* fun = (obj::function_object*)who;
                 /// TODO: check the expression is correct or not
                 obj::int_object* res = work(fun, name, i);
-                mips::return_value(res->load_reg(2));
+                ans = res->load_reg(2);
                 res->free_reg();
             } else assert(0); // Compile Error if the variable is not exist
             break;
@@ -47,11 +45,15 @@ void define_return(std::string s, int valid) {
             while (j < n && std::isdigit(name[j])) {
                 res = res * 10 + name[j ++] - '0';
             }
-            obj::int_object ans("res", 0, res, valid + 1);
-            mips::return_value(ans.load_reg(2));
+            obj::int_object yue("res", 0, res, valid + 1);
+            ans = yue.load_reg(2);
             break;
         }
     }
+    if (valid != -1) {
+        memory::free_stack();
+    }
+    mips::return_value(ans);
 }
 
 void define_function(std::string s, int valid) {
@@ -89,21 +91,25 @@ void compile_expression(std::string s, int valid) {
     
     s = remove_begend_space(s);
     std::unordered_map<std::string, int> Sin = { 
-        {"(", 1}, {")", 14}, 
-        {"*", 13}, {"%", 13}, {"/", 13}, 
-        {"+", 11}, {"-", 11}, 
-        {"==", 9}, {"!=", 9},
-        {"<=", 7}, {">=", 7}, {"<", 7}, {">", 7},
-        {"&", 5}, {"^", 5}, {"|", 5},
-        {"=", 3}};
+        {"(", 1}, {")", 18}, 
+        {"*", 17}, {"%", 17}, {"/", 17}, 
+        {"+", 15}, {"-", 15}, 
+        {"==", 13}, {"!=", 13},
+        {"<=", 11}, {">=", 11}, {"<", 11}, {">", 11},
+        {"&", 9}, 
+        {"^", 7}, 
+        {"|", 5},
+        {"=", 2}};
     std::unordered_map<std::string, int> Sout = {
-        {"(", 14}, {")", 1},
-         {"*", 12}, {"%", 12}, {"/", 12}, 
-        {"+", 10}, {"-", 10},
-         {"==", 8}, {"!=", 8},
-         {"<=", 6}, {">=", 6}, {"<", 6}, {">", 6},
-         {"&", 4}, {"^", 4}, {"|", 4},
-         {"=", 2}};
+        {"(", 18}, {")", 1},
+         {"*", 16}, {"%", 16}, {"/", 16}, 
+        {"+", 14}, {"-", 14},
+         {"==", 12}, {"!=", 12},
+         {"<=", 10}, {">=", 10}, {"<", 10}, {">", 10},
+         {"&", 8}, 
+         {"^", 6}, 
+         {"|", 4},
+         {"=", 3}};
     
     std::stack<obj::int_object> num; std::stack<std::string> op;
     int n = s.size();
@@ -148,12 +154,17 @@ void compile_expression(std::string s, int valid) {
     std::string opName = "+-*/%<>=&|^!";
 	for (int i = 0; i < n; i++) {
         if (s[i] == ' ') continue;
-        if (isdigit(s[i])) {
+        bool neg = false;
+        if (isdigit(s[i]) || neg) {
+            if (neg) {
+                while (!isdigit(s[i])) i ++;
+            }
             int res = s[i] - '0';
             int j = i + 1;
             while (j < n && isdigit(s[j])) {
                 res = res * 10 + s[j ++] - '0';
             }
+            if (neg) res = -res;
             num.push(obj::int_object(std::to_string(res), 0, res, valid + 1));
             i = j - 1;
         } else if (isalpha(s[i]) || s[i] == '_') {
