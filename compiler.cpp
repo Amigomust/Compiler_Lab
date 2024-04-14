@@ -66,7 +66,7 @@ void define_function(std::string s, int valid) {
     std::vector<obj::int_object*> args;
     if (true) args = define_arg(fun[2], valid + 1);
     std::string code = fun[3];
-    // pause();
+    pause();
     obj::function_object* obj = new obj::function_object(name, valid, args);
     global_trie.insert(obj);
     compile_code(code, valid + 2);
@@ -75,8 +75,6 @@ void define_function(std::string s, int valid) {
 void define_int(std::string s, int valid) {
     std::vector<std::string> fun = split(s);
     assert(fun.size() == 2);
-    debug(fun);
-    pause();
     std::string type = fun[0];
     std::string name = fun[1];
     obj::int_object* obj = new obj::int_object(name, true, 0, valid);
@@ -91,17 +89,19 @@ void compile_expression(std::string s, int valid) {
     
     s = remove_begend_space(s);
     std::unordered_map<std::string, int> Sin = { 
-        {"(", 1}, {")", 12}, 
-        {"*", 11}, {"%", 11}, {"/", 11}, 
-        {"+", 9}, {"-", 9}, 
-        {"<=", 7}, {">=", 7}, {"<", 7}, {">", 7}, {"==", 7},
+        {"(", 1}, {")", 14}, 
+        {"*", 13}, {"%", 13}, {"/", 13}, 
+        {"+", 11}, {"-", 11}, 
+        {"==", 9}, {"!=", 9},
+        {"<=", 7}, {">=", 7}, {"<", 7}, {">", 7},
         {"&", 5}, {"^", 5}, {"|", 5},
         {"=", 3}};
     std::unordered_map<std::string, int> Sout = {
-        {"(", 12}, {")", 1},
-         {"*", 10}, {"%", 10}, {"/", 10}, 
-        {"+", 8}, {"-", 8},
-         {"<=", 6}, {">=", 6}, {"<", 6}, {">", 6}, {"==", 6},
+        {"(", 14}, {")", 1},
+         {"*", 12}, {"%", 12}, {"/", 12}, 
+        {"+", 10}, {"-", 10},
+         {"==", 8}, {"!=", 8},
+         {"<=", 6}, {">=", 6}, {"<", 6}, {">", 6},
          {"&", 4}, {"^", 4}, {"|", 4},
          {"=", 2}};
     
@@ -112,7 +112,7 @@ void compile_expression(std::string s, int valid) {
         if (c == "(") return;   
         obj::int_object b = num.top(); num.pop();
         obj::int_object a = num.top(); num.pop();
-        // debug(((a -> proper) ? (a -> name) : std::to_string(a -> cval)), c, ((b -> proper) ? (b -> name) : std::to_string(b -> cval)));
+        debug(((a -> proper) ? (a -> name) : std::to_string(a -> cval)), c, ((b -> proper) ? (b -> name) : std::to_string(b -> cval)));
         if (c == "+") obj::cmd_add(a, b);
         else if (c == "-") obj::cmd_sub(a, b);
         else if (c == "*") obj::cmd_mul(a, b);
@@ -127,6 +127,7 @@ void compile_expression(std::string s, int valid) {
         else if (c == ">=") obj::cmd_ge(a, b);
         else if (c == "==") obj::cmd_eq(a, b);
         else if (c == "=") obj::cmd_assign(a, b);
+        else if (c == "!=") obj::cmd_ne(a, b);
         else assert(0);
 
         if (c == "=") {
@@ -144,7 +145,7 @@ void compile_expression(std::string s, int valid) {
     // vector<string> opName = {"+", "-", "*", "/", "%", 
     // "<", ">", "<=", ">=", "==", 
     // "&", "|", "^"};
-    std::string opName = "+-*/%<>=&|^";
+    std::string opName = "+-*/%<>=&|^!";
 	for (int i = 0; i < n; i++) {
         if (s[i] == ' ') continue;
         if (isdigit(s[i])) {
@@ -203,14 +204,14 @@ obj::int_object* work(obj::function_object * obj, std::string & s, int & beg) {
     while (s[beg] != ')') {
         if (s[beg] == ',' || s[beg] == ' ') {
             beg ++;
-            continue;
+            continue;   
         }
         int l = beg;
         while (s[beg] != ',' && s[beg] != ')' && s[beg] != ' ') beg ++;
         temp.push_back(s.substr(l, beg - l));
     }
     
-    debug(temp);
+
     std::vector<obj::int_object*> args(temp.size(), nullptr);
     assert(temp.size() == obj->args.size());
     for (int i = 0; i < (int)temp.size(); i ++) {
@@ -246,7 +247,7 @@ obj::int_object* work(obj::function_object * obj, std::string & s, int & beg) {
 
 void compile_code(std::string s, int valid) {
     s = remove_begend_space(s);
-    // pause();
+    pause();
     if (s.size() == 0) return;
     std::vector<int> Brackets(3);
     std::unordered_map<char, int> BracketsMap = {{'{', 0}, {'(', 1}, {'[', 2}, {'}', 0}, {')', 1}, {']', 2}};
@@ -258,6 +259,7 @@ void compile_code(std::string s, int valid) {
             assert(Brackets[0] >= 0 && Brackets[1] >= 0 && Brackets[2] >= 0); // Compile Error if the brackets are not matched
             i ++;
         }
+        pause();
         // system("pause");
         if (i != l) {
             std::regex function_expression("\\s*(int|void)\\s*([a-z_A-Z][a-z_A-Z0-9]*)\\s*\\((.*)\\)\\s*\\{(.*)\\}\\s*");
@@ -265,6 +267,7 @@ void compile_code(std::string s, int valid) {
             std::regex return_expression("\\s*return(.*)");
             std::string temp = s.substr(l, i - l);
             if (std::regex_match(temp, function_expression)) {
+                pause();
                 define_function(temp, valid);
             } else if (std::regex_match(temp, define_expression)){
                 define_int(temp, valid);
