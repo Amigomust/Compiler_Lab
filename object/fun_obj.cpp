@@ -8,6 +8,7 @@ namespace obj {
         this->valid_space = valid;
         this->args = args;
     }
+    //TODO: 重构
     int_object* function_object::work(std::vector<int_object*>& obj) {
         mips::system_print((obj[0])->load_reg(4));
         obj[0]->free_reg();
