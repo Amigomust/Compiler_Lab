@@ -3,7 +3,7 @@
 #include <utility>
 #include <stdexcept>
 
-#include "utils.h"
+#include "../mips/utils.h"
 
 namespace obj {
 

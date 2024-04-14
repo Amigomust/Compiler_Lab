@@ -4,10 +4,10 @@ project(lab02)  # 设置项目名称和版本号
 # 添加可执行文件
 add_executable(Compilerlab2 
     csubsub.cpp      # 主程序入口文件
-    fun_obj.cpp     # 其他 CPP 文件
-    int_obj.cpp
-    memory.cpp
-    object.cpp
+    object/fun_obj.cpp     # 其他 CPP 文件
+    object/int_obj.cpp
+    object/memory.cpp
+    object/object.cpp
     compiler.cpp
     # 添加更多的 CPP 文件
 )

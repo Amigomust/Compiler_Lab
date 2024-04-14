@@ -6,5 +6,4 @@ csubsub
 *.o
 CmakeFiles
 bin
-*.cmake
-CMakeCache.txt
+build/*

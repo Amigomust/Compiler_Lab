@@ -1,7 +1,7 @@
 #ifndef TRIE
 #define TRIE
 
-#include "object.h"
+#include "../object/object.h"
 #include <stack>
 #include <unordered_map>
 #include <assert.h>
